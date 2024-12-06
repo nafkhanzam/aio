@@ -1,0 +1,18 @@
+{
+  "name": "@nafkhanzam/deno-placeholder",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": "./src/mod.ts",
+  "imports": {
+    "@nafkhanzam/deno-utils": "jsr:@nafkhanzam/deno-utils@0.1.1"
+  },
+  "fmt": {
+    "lineWidth": 80,
+    "semiColons": true,
+    "useTabs": false,
+    "singleQuote": false,
+    "proseWrap": "never",
+    "indentWidth": 2,
+    "include": ["src/**/*"]
+  }
+}

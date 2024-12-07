@@ -4,11 +4,28 @@ import { assert } from "@std/assert";
 
 export { printf };
 
+export function saferange(
+  start: number,
+  stop?: number,
+  step?: number,
+  expand?: number
+): number[] {
+  return range(start, stop, step, {
+    inclusive: false,
+    bothways: true,
+    expand,
+  });
+}
+
 export function range(
   start: number,
   stop?: number,
   step?: number,
-  inclusive = false
+  opts?: {
+    inclusive: boolean;
+    bothways: boolean;
+    expand?: number;
+  }
 ): number[] {
   if (typeof stop == "undefined") {
     // one param defined
@@ -16,8 +33,19 @@ export function range(
     start = 0;
   }
 
-  if (inclusive) {
+  if (opts?.bothways && stop < start) {
+    const temp = stop;
+    stop = start;
+    start = temp;
+  }
+
+  if (opts?.inclusive) {
     ++stop;
+  }
+
+  if (opts?.expand) {
+    start -= opts.expand;
+    stop += opts.expand;
   }
 
   if (typeof step == "undefined") {

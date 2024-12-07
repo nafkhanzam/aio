@@ -292,6 +292,7 @@ export const arrays = {
         return prev;
       }
     }, null as unknown as T),
-  sum: <T extends number>(a: T[]): T =>
-    a.reduce<T>((prev, curr) => (prev + curr) as T, 0 as T),
+  sum: <T extends number>(a: T[]): number =>
+    a.reduce((prev, curr) => prev + curr, 0),
+  avg: <T extends number>(a: T[]): number => arrays.sum(a) / a.length,
 };

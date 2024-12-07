@@ -126,21 +126,22 @@ export function generateSelectableNanoid(): string {
   return selectableNanoid();
 }
 
-export function crossArray(
+export function crossArray<A, B>(
   unique: boolean,
-  a: readonly unknown[],
-  b: readonly unknown[]
-): (readonly [unknown, unknown])[] {
+  a: readonly A[],
+  b: readonly B[]
+): (readonly [A, B])[] {
   const res = [];
   for (const av of a) {
     for (const bv of b) {
+      // @ts-ignore test
       if (unique && av === bv) {
         continue;
       }
       res.push([av, bv] as const);
     }
   }
-  return res.map((v) => v.flat() as unknown as readonly [unknown, unknown]);
+  return res.map((v) => v.flat() as unknown as readonly [A, B]);
 }
 export function crossArrays(
   unique: boolean,

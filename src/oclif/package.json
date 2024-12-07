@@ -51,7 +51,7 @@
     "node": ">=12.0.0"
   },
   "dependencies": {
-    "@nafkhanzam/deno-utils": "npm:@jsr/nafkhanzam__deno-utils@0.1.1",
+    "@nafkhanzam/deno-utils": "npm:@jsr/nafkhanzam__deno-utils@0.1.3",
     "@oclif/core": "4.0.34",
     "@oclif/plugin-help": "6.2.18",
     "axios": "1.7.9",

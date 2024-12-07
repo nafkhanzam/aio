@@ -56,6 +56,7 @@ export default [
           vars: "all",
           args: "all",
           argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
         },
       ],
 

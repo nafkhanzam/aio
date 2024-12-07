@@ -292,4 +292,6 @@ export const arrays = {
         return prev;
       }
     }, null as unknown as T),
+  sum: <T extends number>(a: T[]): T =>
+    a.reduce<T>((prev, curr) => (prev + curr) as T, 0 as T),
 };

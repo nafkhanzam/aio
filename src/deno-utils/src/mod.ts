@@ -4,6 +4,11 @@ import { assert } from "@std/assert";
 
 export { printf };
 
+export function rangechar(ch: string, ranges: number[]): string[] {
+  assert(ch.length === 1, "The char length is not 1.");
+  return ranges.map((i) => String.fromCharCode(ch.charCodeAt(0) + i));
+}
+
 export function saferange(
   start: number,
   stop?: number,

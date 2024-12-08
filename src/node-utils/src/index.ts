@@ -105,7 +105,7 @@ export function randUniques(n: number, min: number, max?: number): number[] {
 
 export function _<T>(a: readonly T[], i?: number): T {
   if (i === undefined) {
-    i = rand(0, a.length - 1);
+    i = rand(a.length);
   }
   return a[i % a.length];
 }

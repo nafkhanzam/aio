@@ -1,6 +1,6 @@
 import { customAlphabet } from "nanoid";
 import { default as printf } from "@stdlib/string-format";
-import { assert } from "@std/assert";
+import { equal as assert } from "node:assert";
 
 export { printf };
 
@@ -188,7 +188,7 @@ export function track<T>(t: T): T {
 }
 
 export function debug(...anies: unknown[]): void {
-  if (Deno.env.get(`DEBUG`) === "1") console.log(...anies);
+  if (process.env.DEBUG === "1") console.log(...anies);
 }
 
 export function minterms(nums: number[]): string {

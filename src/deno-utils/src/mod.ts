@@ -329,12 +329,12 @@ export const arrays = {
   sum: <T extends number>(a: T[]): number =>
     a.reduce((prev, curr) => prev + curr, 0),
   avg: <T extends number>(a: T[]): number => arrays.sum(a) / a.length,
-  copyModify: <T>(a: T[], i: number, v: T) => [
+  copyModify: <T>(a: T[], i: number, v: T): T[] => [
     ...a.slice(0, i),
     v,
     ...a.slice(i + 1),
   ],
-  copyInsert: <T>(a: T[], i: number, v: T) => [
+  copyInsert: <T>(a: T[], i: number, v: T): T[] => [
     ...a.slice(0, i),
     v,
     ...a.slice(i),

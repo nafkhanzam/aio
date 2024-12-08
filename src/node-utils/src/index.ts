@@ -1,11 +1,11 @@
 import { customAlphabet } from "nanoid";
 import { default as printf } from "@stdlib/string-format";
-import { equal as assert } from "node:assert";
+import { default as assert } from "node:assert";
 
 export { printf };
 
 export function rangechar(ch: string, ranges: number[]): string[] {
-  assert(ch.length === 1, "The char length is not 1.");
+  assert(ch.length === 1, `The ch[${ch}] length[${ch.length}] is not 1.`);
   return ranges.map((i) => String.fromCharCode(ch.charCodeAt(0) + i));
 }
 
@@ -82,7 +82,7 @@ export function rands(n: number, min: number, max?: number): number[] {
 }
 
 export function randUniques(n: number, min: number, max?: number): number[] {
-  if (max == null) {
+  if (max === undefined) {
     max = min;
     min = 0;
   }
@@ -242,6 +242,13 @@ export function shuffle<T>(array: T[]): T[] {
   }
   return shuffledArray;
 }
+export function randtake<T>(a: T[], n: number): T[] {
+  assert(
+    n <= a.length,
+    `Taking n[${n}] out of a.length[${a.length}], which is impossible.`
+  );
+  return shuffled(a).slice(0, n);
+}
 
 export function buildNumberFromBinaryArray(arr: number[]): number {
   let res = 0;
@@ -334,9 +341,36 @@ export const arrays = {
     v,
     ...a.slice(i + 1),
   ],
+  copyModifyRange: <T>(a: T[], indices: number[], v: T | T[]) =>
+    a.map((el, i) => {
+      if (indices.includes(i)) {
+        if (Array.isArray(v)) {
+          const res = v[0];
+          v = v.slice(1);
+          return res;
+        } else {
+          return v;
+        }
+      }
+      return el;
+    }),
   copyInsert: <T>(a: T[], i: number, v: T) => [
     ...a.slice(0, i),
     v,
     ...a.slice(i),
   ],
+  copyDelete: <T>(a: T[], i: number) => [...a.slice(0, i), ...a.slice(i + 1)],
+  copyDeleteMany: <T>(a: T[], indices: number[]) =>
+    a.filter((_, i) => !indices.includes(i)),
+  equals: <T>(a: T[], b: T[]) => {
+    if (a.length !== b.length) {
+      return false;
+    }
+    for (const i of range(a.length)) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+    return true;
+  },
 };

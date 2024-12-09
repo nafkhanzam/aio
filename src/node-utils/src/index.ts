@@ -87,7 +87,7 @@ export function randUniques(n: number, min: number, max?: number): number[] {
     min = 0;
   }
   if (n > max - min) {
-    throw new Error(`\`n\` cannot be bigger than \`max - min\``);
+    throw new Error(`n[${n}] cannot be bigger than max[${max}] - min[${min}]`);
   }
   const set = new Set<number>();
   while (set.size < n) {

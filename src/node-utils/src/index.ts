@@ -373,4 +373,8 @@ export const arrays = {
     }
     return true;
   },
+  zip: (...arrays: any[][]): any[][] => {
+    const length = Math.min(...arrays.map((arr) => arr.length));
+    return Array.from({ length }, (_, i) => arrays.map((arr) => arr[i]));
+  },
 };

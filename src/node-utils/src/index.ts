@@ -1,6 +1,7 @@
 import { customAlphabet } from "nanoid";
 import { default as printf } from "@stdlib/string-format";
 import { default as assert } from "node:assert";
+import * as csv from "csv-parse/sync";
 
 export { printf };
 
@@ -67,6 +68,19 @@ export function range(
   }
 
   return result;
+}
+
+export function deltarange(
+  pivot: number,
+  deltal: number,
+  deltar?: number
+): number[] {
+  const r = deltar ?? deltal;
+  return range(pivot - deltal, pivot + r + 1);
+}
+
+export function IF<T>(condition: boolean, value: T): T | undefined {
+  return condition ? value : undefined;
 }
 
 export function rand(min: number, max?: number): number {
@@ -169,13 +183,20 @@ export function* combs(
   a: unknown[],
   ...arrs: unknown[][]
 ): Generator<readonly unknown[]> {
-  const combs =
-    arrs.length > 0 ? crossArrays(unique, a, ...arrs) : a.map((v) => [v]);
+  const combs = combsAll(unique, a, ...arrs);
   debug(n, combs);
   for (const i of randUniques(n, combs.length)) {
     debug(i, combs[i]);
     yield combs[i];
   }
+}
+
+export function combsAll(
+  unique: boolean,
+  a: unknown[],
+  ...arrs: unknown[][]
+): (readonly unknown[])[] {
+  return arrs.length > 0 ? crossArrays(unique, a, ...arrs) : a.map((v) => [v]);
 }
 
 export function bitlen(v: number, pf: string): number {
@@ -314,6 +335,16 @@ export function parseBinary(b: string, bits?: number): number {
   }
   assert(b.length <= bits, `b[${b}] is longer than bits[${bits}]`);
   return sumSigned(bits, parseInt(b, 2), 0);
+}
+
+export function readCsvWithHeaders(
+  content: string
+): readonly Record<string, string>[] {
+  return csv.parse(content, {
+    columns: true,
+    skip_empty_lines: true,
+    bom: true,
+  });
 }
 
 export const arrays = {

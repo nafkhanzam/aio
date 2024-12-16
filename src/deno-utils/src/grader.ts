@@ -1,5 +1,5 @@
-import * as pl from "npm:nodejs-polars";
-import * as path from "jsr:@std/path";
+import * as pl from "npm:nodejs-polars@0.17.0";
+import * as path from "jsr:@std/path@1.0.8";
 
 export class Grader {
   static GRADE_MAP: [number, string][] = [

@@ -11,12 +11,13 @@ export class Grader {
     [0.41, "D"],
     [0.0, "E"],
   ];
-  private root: string = import.meta.dirname!;
+  private root!: string;
   private df!: pl.DataFrame;
   private weights: [string, number][] = [];
   constructor() {}
 
-  init(source_filepath: string): Grader {
+  init(source_filepath: string, cwd: string = import.meta.filename!): Grader {
+    this.root = cwd;
     this.df = pl.readCSV(this._(source_filepath), {
       quoteChar: `"`,
     });
@@ -55,26 +56,35 @@ export class Grader {
   }
 
   grade(): Grader {
+    return this.#grade(``, 0);
+  }
+
+  #grade(prefix: string, shift: number): Grader {
     const totalWeight = this.weights.reduce((prev, curr) => prev + curr[1], 0);
     this.df = this.df.withColumn(
       this.weights
         .map(([col, weight]) => pl.col(col).mul(weight / totalWeight))
         .reduce((prev, curr) => prev.add(curr))
-        .alias(`total`)
+        .add(pl.lit(shift))
+        .alias(`${prefix}total`)
         .round(2)
     );
     this.df = this.df.withColumn(
       Grader.GRADE_MAP.reduce(
         (prev, [minScore, gradeName]): pl.Then =>
           prev
-            .when(pl.col(`total`).fillNull(pl.lit(0)).gtEq(minScore))
+            .when(pl.col(`${prefix}total`).fillNull(pl.lit(0)).gtEq(minScore))
             .then(pl.lit(gradeName)),
         pl as unknown as pl.Then
       )
         .otherwise(pl.lit(null))
-        .alias(`grade`)
+        .alias(`${prefix}grade`)
     );
     return this;
+  }
+
+  shift(shift: number): Grader {
+    return this.#grade(`shift_`, shift);
   }
 
   writeCsv(filename: string): Grader {
@@ -82,9 +92,9 @@ export class Grader {
     return this;
   }
 
-  gradeDist(): pl.DataFrame {
-    const grades: pl.Series = this.df.getColumn(`grade`);
-    return grades.valueCounts().sort(pl.col(`grade`));
+  gradeDist(prefix: string = ``): pl.DataFrame {
+    const grades: pl.Series = this.df.getColumn(`${prefix}grade`);
+    return grades.valueCounts().sort(pl.col(`${prefix}grade`));
   }
 
   private _(filepath: string): string {

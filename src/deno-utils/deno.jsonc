@@ -7,5 +7,6 @@
     "@std/assert": "jsr:@std/assert@1.0.9",
     "@stdlib/string-format": "npm:@stdlib/string-format@0.2.2",
     "nanoid": "npm:nanoid@5.0.9"
-  }
+  },
+  "unstable": ["bare-node-builtins", "byonm", "sloppy-imports", "unsafe-proto"]
 }

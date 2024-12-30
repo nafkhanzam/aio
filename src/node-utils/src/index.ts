@@ -2,7 +2,10 @@ import { customAlphabet } from "nanoid";
 import { default as printf } from "@stdlib/string-format";
 import { default as assert } from "node:assert";
 import * as csv from "csv-parse/sync";
+import { writeFileSync } from "node:fs";
+import { CSV } from "./csv.js";
 
+export * from "./csv.js";
 export { printf };
 
 export function rangechar(ch: string, ranges: number[]): string[] {
@@ -337,9 +340,7 @@ export function parseBinary(b: string, bits?: number): number {
   return sumSigned(bits, parseInt(b, 2), 0);
 }
 
-export function readCsvWithHeaders(
-  content: string
-): readonly Record<string, string>[] {
+export function readCsvWithHeaders(content: string): Record<string, string>[] {
   return csv.parse(content, {
     columns: true,
     skip_empty_lines: true,
@@ -347,18 +348,26 @@ export function readCsvWithHeaders(
   });
 }
 
+export function writeCsv(filename: string, records: Record<string, string>[]) {
+  const csv = new CSV();
+  for (const record of records) {
+    csv.append(record);
+  }
+  csv.writeToFile(filename);
+}
+
 export const arrays = {
-  min: <T extends number>(a: T[]): T =>
+  min: <T>(a: T[], by: (v: T) => number = (v) => v as number): T =>
     a.reduce<T>((prev, curr) => {
-      if (prev === null || curr < prev) {
+      if (prev === null || by(curr) < by(prev)) {
         return curr;
       } else {
         return prev;
       }
     }, null as unknown as T),
-  max: <T extends number>(a: T[]): T =>
+  max: <T>(a: T[], by: (v: T) => number = (v) => v as number): T =>
     a.reduce<T>((prev, curr) => {
-      if (prev === null || curr > prev) {
+      if (prev === null || by(curr) > by(prev)) {
         return curr;
       } else {
         return prev;
@@ -367,12 +376,12 @@ export const arrays = {
   sum: <T extends number>(a: T[]): number =>
     a.reduce((prev, curr) => prev + curr, 0),
   avg: <T extends number>(a: T[]): number => arrays.sum(a) / a.length,
-  copyModify: <T>(a: T[], i: number, v: T) => [
+  copyModify: <T>(a: T[], i: number, v: T): T[] => [
     ...a.slice(0, i),
     v,
     ...a.slice(i + 1),
   ],
-  copyModifyRange: <T>(a: T[], indices: number[], v: T | T[]) =>
+  copyModifyRange: <T>(a: T[], indices: number[], v: T | T[]): T[] =>
     a.map((el, i) => {
       if (indices.includes(i)) {
         if (Array.isArray(v)) {
@@ -385,15 +394,18 @@ export const arrays = {
       }
       return el;
     }),
-  copyInsert: <T>(a: T[], i: number, v: T) => [
+  copyInsert: <T>(a: T[], i: number, v: T): T[] => [
     ...a.slice(0, i),
     v,
     ...a.slice(i),
   ],
-  copyDelete: <T>(a: T[], i: number) => [...a.slice(0, i), ...a.slice(i + 1)],
-  copyDeleteMany: <T>(a: T[], indices: number[]) =>
+  copyDelete: <T>(a: T[], i: number): T[] => [
+    ...a.slice(0, i),
+    ...a.slice(i + 1),
+  ],
+  copyDeleteMany: <T>(a: T[], indices: number[]): T[] =>
     a.filter((_, i) => !indices.includes(i)),
-  equals: <T>(a: T[], b: T[]) => {
+  equals: <T>(a: T[], b: T[]): boolean => {
     if (a.length !== b.length) {
       return false;
     }
@@ -409,3 +421,38 @@ export const arrays = {
     return Array.from({ length }, (_, i) => arrays.map((arr) => arr[i]));
   },
 };
+
+export function editDistance(a: string, b: string): number {
+  const an = a ? a.length : 0;
+  const bn = b ? b.length : 0;
+  if (an === 0) {
+    return bn;
+  }
+  if (bn === 0) {
+    return an;
+  }
+  const matrix = new Array<number[]>(bn + 1);
+  for (let i = 0; i <= bn; ++i) {
+    let row = (matrix[i] = new Array<number>(an + 1));
+    row[0] = i;
+  }
+  const firstRow = matrix[0];
+  for (let j = 1; j <= an; ++j) {
+    firstRow[j] = j;
+  }
+  for (let i = 1; i <= bn; ++i) {
+    for (let j = 1; j <= an; ++j) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] =
+          Math.min(
+            matrix[i - 1][j - 1], // substitution
+            matrix[i][j - 1], // insertion
+            matrix[i - 1][j] // deletion
+          ) + 1;
+      }
+    }
+  }
+  return matrix[bn][an];
+}
